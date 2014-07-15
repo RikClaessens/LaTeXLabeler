@@ -1,5 +1,11 @@
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
+
 import java.io.*;
 import java.util.Scanner;
+
+import static org.fusesource.jansi.Ansi.Color.*;
+import static org.fusesource.jansi.Ansi.ansi;
 
 /**
  * Created by rhmclaessens on 15-05-2014.
@@ -14,6 +20,11 @@ public class Labeler {
     private String texRootLabel = "% !TEX root = ";
     private String texProgramLabel = "%!TEX program";
     private int numberOfFilesUpdated = 0;
+    private Ansi.Color messageColor = DEFAULT;
+    private Ansi.Color modifyColor = GREEN;
+    private Ansi.Color folderColor = CYAN;
+    private Ansi.Color fileColor = GREEN;
+    private Ansi.Color chapterColor = BLUE;
 
     public static void main(String[] args) {
         System.out.println("\n\n==========================================================================================");
@@ -21,13 +32,22 @@ public class Labeler {
             System.err.println("Provide the path to the folder you wish to label and the root tex file of the document");
             System.exit(0);
         }
-        System.out.println("Labeling: " + args[0]);
-        System.out.println("TEX root: " + args[1]);
         new Labeler().label(args[0], args[1]);
         System.out.println("==========================================================================================\n\n");
     }
 
+    public void initJansi() {
+        AnsiConsole.systemInstall();
+    }
+
+    public String printAnsi(String s, Ansi.Color color) {
+        return ansi().fg(color).a(s).reset().toString();
+    }
+
     public void label(String path, String root) {
+        initJansi();
+        System.out.println(printAnsi("Labeling: ", messageColor) + printAnsi(path, modifyColor));
+        System.out.println(printAnsi("TEX root: ", messageColor) + printAnsi(root, modifyColor));
         File folder = new File(path);
         if (!folder.exists()) {
             System.err.println("Folder " + folder.getPath() + " doesn't exist");
@@ -35,18 +55,18 @@ public class Labeler {
         }
         labelFolder(folder, 0, root, folder.getName());
         labelFolder(folder, 0, root, folder.getName());
-        System.out.println("\nAdded " + numberOfLabels + " label" + ((numberOfLabels > 1 || numberOfLabels == 0) ? "s" : "") + ".");
-        System.out.println("Updated " + numberOfFilesUpdated + " file" + ((numberOfFilesUpdated > 1 || numberOfFilesUpdated == 0) ? "s" : "") + ".");
+        System.out.println(printAnsi("\nAdded ", messageColor) + printAnsi(Integer.toString(numberOfLabels), modifyColor) + printAnsi(" label" + ((numberOfLabels > 1 || numberOfLabels == 0) ? "s" : "") + ".", messageColor));
+        System.out.println(printAnsi("Updated ", messageColor) + printAnsi(Integer.toString(numberOfFilesUpdated), modifyColor) + printAnsi(" file" + ((numberOfFilesUpdated > 1 || numberOfFilesUpdated == 0) ? "s" : "") + ".", messageColor));
     }
 
     public void labelFolder(File folder, int depth, String root, String path) {
         String chapterTitle = lookForChapterTitleInFolder(folder);
         if (!chapterTitle.equalsIgnoreCase("")) {
-            System.out.println(getTabs(depth) + "#  " + chapterTitle);
+            System.out.println(printAnsi(getTabs(depth) + "#  " + chapterTitle, chapterColor));
         }
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
-                System.out.println(getTabs(depth + 1) + "> " + file.getName());
+                System.out.println(printAnsi(getTabs(depth + 1) + "> " + file.getName(), folderColor));
                 labelFolder(file, depth + 1, root, path + "/" + file.getName());
             } else if (getExtension(file).equalsIgnoreCase(".tex")){
                 labelFile(file, depth, root, path, chapterTitle);
@@ -162,7 +182,7 @@ public class Labeler {
                 e.printStackTrace();
             }
             if (!s.equalsIgnoreCase(original) && !s.equalsIgnoreCase(original + "\n")) {
-                System.out.println(getTabs(depth) + "|  " + file.getName() + " updated");
+                System.out.println(printAnsi(getTabs(depth) + "|  " + file.getName() + " updated", modifyColor));
                 numberOfFilesUpdated++;
                 Writer writer = null;
 
