@@ -54,15 +54,16 @@ public class Labeler {
             System.exit(0);
         }
         labelFolder(folder, 0, root, folder.getName());
-        labelFolder(folder, 0, root, folder.getName());
+//        labelFolder(folder, 0, root, folder.getName());
         System.out.println(printAnsi("\nAdded ", messageColor) + printAnsi(Integer.toString(numberOfLabels), modifyColor) + printAnsi(" label" + ((numberOfLabels > 1 || numberOfLabels == 0) ? "s" : "") + ".", messageColor));
         System.out.println(printAnsi("Updated ", messageColor) + printAnsi(Integer.toString(numberOfFilesUpdated), modifyColor) + printAnsi(" file" + ((numberOfFilesUpdated > 1 || numberOfFilesUpdated == 0) ? "s" : "") + ".", messageColor));
     }
 
     public void labelFolder(File folder, int depth, String root, String path) {
+        boolean appendixFolder = appendix;
         String chapterTitle = lookForChapterTitleInFolder(folder);
         if (!chapterTitle.equalsIgnoreCase("")) {
-            System.out.println(printAnsi(getTabs(depth) + "#  " + chapterTitle, chapterColor));
+            System.out.println(printAnsi(getTabs(depth) + "#  " + chapterTitle + (appendix ? " - This is the appendix" : ""), chapterColor));
         }
         for (File file : folder.listFiles()) {
             if (file.isDirectory()) {
@@ -72,6 +73,7 @@ public class Labeler {
                 labelFile(file, depth, root, path, chapterTitle);
             }
         }
+        appendix = appendixFolder;
     }
 
     public String lookForChapterTitleInFolder(File folder) {
@@ -84,17 +86,18 @@ public class Labeler {
     }
 
     public String lookForChapterTitleInFile(File file) {
-        String chapterTitle = "";
         try {
             Scanner scanner =  new Scanner(file);
             while (scanner.hasNextLine()) {
                 String nextLine = scanner.nextLine();
+                if (nextLine.contains("\\begin{appendices}")) {
+                    appendix = true;
+                }
                 for (int i = 0; i < tagsToLabel.length; i++) {
                     if (nextLine.contains("\\" + tagsToLabel[i] + "{")) {
                         String title = nextLine.substring(nextLine.indexOf('{') + 1, nextLine.length() - 1);
                         if (nextLine.contains("chapter")) {
-                            chapterTitle = (appendix ? "app-" : "") + title;
-                            return chapterTitle;
+                            return title;
                         }
                     }
                 }
@@ -102,11 +105,11 @@ public class Labeler {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return chapterTitle;
+        return "";
     }
 
     public void labelFile(File file, int depth, String root, String path, String chapterTitle) {
-//        System.out.println("Labeling " + file.getPath());
+        System.out.println("Labeling " + file.getPath() + " " + appendix);
         String s = "";
         boolean print = true;
         boolean firstLine = true;
@@ -132,12 +135,6 @@ public class Labeler {
                     firstLine = false;
                 }
                 for (int i = 0; i < tagsToLabel.length; i++) {
-                    if (nextLine.contains("\\begin{appendices}")) {
-                        appendix = true;
-                    }
-                    if (nextLine.contains("\\end{appendices}")) {
-                        appendix = false;
-                    }
                     if (nextLine.contains("\\" + tagsToLabel[i] + "{")) {
                         String title = nextLine.substring(nextLine.indexOf('{') + 1, nextLine.length() - 1);
                         if (nextLine.contains("chapter")) {
@@ -182,7 +179,7 @@ public class Labeler {
                 e.printStackTrace();
             }
             if (!s.equalsIgnoreCase(original) && !s.equalsIgnoreCase(original + "\n")) {
-                System.out.println(printAnsi(getTabs(depth) + "|  " + file.getName() + " updated", modifyColor));
+                System.out.println(printAnsi(getTabs(depth) + "|  " + file.getName() + " updated" + appendix, modifyColor));
                 numberOfFilesUpdated++;
                 Writer writer = null;
 
