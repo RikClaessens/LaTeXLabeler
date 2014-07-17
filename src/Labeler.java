@@ -109,7 +109,7 @@ public class Labeler {
     }
 
     public void labelFile(File file, int depth, String root, String path, String chapterTitle) {
-        System.out.println("Labeling " + file.getPath() + " " + appendix);
+//        System.out.println("Labeling " + file.getPath() + " " + appendix);
         String s = "";
         boolean print = true;
         boolean firstLine = true;
