@@ -14,7 +14,7 @@ public class Labeler {
     private String[] tagsToLabel = new String[]{"chapter", "section", "subsection", "subsubsection"};
     private String[] labels = new String[]{"chap", "sec", "subsec", "subsubsec"};
     private String[] escapeLabels = new String[]{"ac", "acl", "acp", "aclp", "acf"};
-    private String[][] replaceInLabels = new String[][]{{"\\\\&", "and"}};
+    private String[][] replaceInLabels = new String[][]{{"\\\\&", "and"}, {"\\$", ""}, {"\\\\", ""}};
     private int numberOfLabels = 0;
     private boolean appendix = false;
     private String texRootLabel = "% !TEX root = ";
@@ -147,7 +147,7 @@ public class Labeler {
                         s += nextLine + "\n";
                         if (scanner.hasNextLine()) {
                             nextLine = scanner.nextLine();
-                            if (nextLine.contains("label")) {
+                            if (nextLine.contains("\\label")) {
                                 nextLine = "";
                             }
                         }
@@ -157,15 +157,15 @@ public class Labeler {
                         }
                         String label = prefix + title.replaceAll(" ", "").toLowerCase();
 //                        System.out.println("\t\tGoing to add label in file " + file.getPath() + " : " + label.replaceAll("\n", ""));
-                        for (String[] replaceInLabel : replaceInLabels) {
-                            label = label.replaceAll(replaceInLabel[0], replaceInLabel[1]);
-                        }
                         for (String escapeLabel : escapeLabels) {
                             label = label.replaceAll("\\\\" + escapeLabel + "\\{", "");
                         }
+                        for (String[] replaceInLabel : replaceInLabels) {
+                            label = label.replaceAll(replaceInLabel[0], replaceInLabel[1]);
+                        }
                         label = label.replaceAll("}", "");
                         label = "\\label{" + label + "}\n";
-                        s += label;
+                        s += label + (!nextLine.equalsIgnoreCase("") ? nextLine : "");
                         nextLine = "";
                         print = false;
                         numberOfLabels++;
