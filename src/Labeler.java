@@ -141,7 +141,7 @@ public class Labeler {
                     if (nextLine.contains("\\" + tagsToLabel[i] + "{")) {
                         String title = nextLine.substring(nextLine.indexOf('{') + 1, nextLine.length() - 1);
                         if (nextLine.contains("chapter")) {
-                            chapterTitle = (appendix ? "app-" : "") + title;
+                            title = (appendix ? "app-" : "") + title;
                         }
 //                        System.out.println("\tFound a " + tagsToLabel[i] + " tag with title " + title + " in " + nextLine);
                         s += nextLine + "\n";
