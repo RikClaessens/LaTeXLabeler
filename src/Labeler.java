@@ -179,7 +179,7 @@ public class Labeler {
                 e.printStackTrace();
             }
             if (!s.equalsIgnoreCase(original) && !s.equalsIgnoreCase(original + "\n")) {
-                System.out.println(printAnsi(getTabs(depth) + "|  " + file.getName() + " updated" + appendix, modifyColor));
+                System.out.println(printAnsi(getTabs(depth) + "|  " + file.getName() + " updated", modifyColor));
                 numberOfFilesUpdated++;
                 Writer writer = null;
 
