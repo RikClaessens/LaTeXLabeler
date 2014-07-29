@@ -13,7 +13,7 @@ import static org.fusesource.jansi.Ansi.ansi;
 public class Labeler {
     private String[] tagsToLabel = new String[]{"chapter", "section", "subsection", "subsubsection"};
     private String[] labels = new String[]{"chap", "sec", "subsec", "subsubsec"};
-    private String[] escapeLabels = new String[]{"ac", "acl", "acp", "aclp", "acf"};
+    private String[] escapeLabels = new String[]{"ac", "acl", "acp", "aclp", "acf", "emph"};
     private String[][] replaceInLabels = new String[][]{{"\\\\&", "and"}, {"\\$", ""}, {"\\\\", ""}};
     private int numberOfLabels = 0;
     private boolean appendix = false;
