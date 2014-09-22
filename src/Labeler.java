@@ -14,7 +14,7 @@ public class Labeler {
     private String[] tagsToLabel = new String[]{"chapter", "section", "subsection", "subsubsection"};
     private String[] labels = new String[]{"chap", "sec", "subsec", "subsubsec"};
     private String[] escapeLabels = new String[]{"ac", "acl", "acp", "aclp", "acf", "emph"};
-    private String[][] replaceInLabels = new String[][]{{"\\\\&", "and"}, {"\\$", ""}, {"\\\\", ""}};
+    private String[][] replaceInLabels = new String[][]{{"\\\\&", "and"}, {"\\$", ""}, {"\\\\", ""}, {"\\\\texorpdfstring\\{\\\\boldsymbol\\{\\\\alpha\\\\beta\\}$\\}\\{", ""}};
     private int numberOfLabels = 0;
     private boolean appendix = false;
     private String texRootLabel = "% !TEX root = ";
@@ -25,6 +25,9 @@ public class Labeler {
     private Ansi.Color folderColor = CYAN;
     private Ansi.Color fileColor = GREEN;
     private Ansi.Color chapterColor = BLUE;
+
+
+    private final String FIXED = "%fixed";
 
     public static void main(String[] args) {
         System.out.println("\n\n==========================================================================================");
@@ -126,7 +129,7 @@ public class Labeler {
                 String nextLine = scanner.nextLine();
                 if (firstLine) {
                     if (nextLine.contains(texRootLabel)){
-                        if (!nextLine.equalsIgnoreCase(texRoot)) {
+                        if (!nextLine.equalsIgnoreCase(texRoot) && !nextLine.contains(FIXED)) {
                             nextLine = texRoot;
                         }
                     } else {
@@ -145,12 +148,15 @@ public class Labeler {
                         if (scanner.hasNextLine()) {
                             nextLine = scanner.nextLine();
                             if (nextLine.contains("\\label")) {
+                                if (nextLine.contains(FIXED)) {
+                                    break;
+                                }
                                 nextLine = "";
                             }
                         }
                         String prefix = "";
                         if (!tagsToLabel[i].equalsIgnoreCase("chapter")) {
-                            prefix = chapterTitle.replaceAll(" ", "").toLowerCase() + "-" + labels[i] + ":";
+                            prefix = chapterTitle.replaceAll(" ", "").toLowerCase() + (chapterTitle.equalsIgnoreCase("") ? "" : "-") + labels[i] + ":";
                         }
                         String label = prefix + title.replaceAll(" ", "").toLowerCase();
 //                        System.out.println("\t\tGoing to add label in file " + file.getPath() + " : " + label.replaceAll("\n", ""));
